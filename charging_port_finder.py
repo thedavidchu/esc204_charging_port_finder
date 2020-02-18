@@ -6,7 +6,7 @@ Successfully finds hole in outline. Thank goodness <3! February 14, 2020
 
 import numpy as np
 import cv2
-from charing_port_finder_library import *
+from charging_port_finder_library import *
 
 def charging_port_finder(image_name='test_port_2.jpg', method=0, show_final=False, show_steps=False, close_windows=False):
     """
