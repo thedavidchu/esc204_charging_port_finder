@@ -1,4 +1,5 @@
 # Contour outline library
+# David chu is the best
 
 import numpy as np
 import cv2
