@@ -1,8 +1,12 @@
 # Contour outline library
-# David chu is NOT the best
 
 import numpy as np
 import cv2
+
+#####
+"""
+These functions reformat the image.
+"""
 
 def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
     """
@@ -22,6 +26,18 @@ def ResizeWithAspectRatio(image, width=None, height=None, inter=cv2.INTER_AREA):
         dim = (width, int(h * r))
 
     return cv2.resize(image, dim, interpolation=inter)
+
+def external_rectangle(image):
+    """
+    image = [ [ [B G R], [...], ..., [] ], [], ..., [] ]
+    """
+    start_point = (0,0)
+    end_point = (len(image[0])-1, len(image)-1)
+    colour = (0,0,0)
+    thickness = 1
+    cv2.rectangle(image, start_point, end_point, colour, thickness)
+
+    return image
 
 #####
 
@@ -184,22 +200,25 @@ def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_win
         pass
     im_resize = ResizeWithAspectRatio(image, 600)
 
+    # Create border so that there is still a contour if the charging port is only partially in the screen.
+    im_border = external_rectangle(im_resize)
+
     # Declare the images to display
     im_all_contours = im_resize.copy()
     im_max_contour = im_resize.copy()
     im_max_inner_contour = im_resize.copy()
 
     # Convert to grey
-    im_grey = cv2.cvtColor(im_resize,cv2.COLOR_BGR2GRAY)
+    im_grey = cv2.cvtColor(im_border,cv2.COLOR_BGR2GRAY)
     
     if method == 1:
         # Mean
-        img = cv2.medianBlur(im_grey,5)
-        im_thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
+        im_grey = cv2.medianBlur(im_grey,5)
+        im_thresh = cv2.adaptiveThreshold(im_grey,255,cv2.ADAPTIVE_THRESH_MEAN_C,cv2.THRESH_BINARY,11,2)
     
     elif method == 2:
-        img = cv2.medianBlur(im_grey,5)
-        im_thresh = cv2.adaptiveThreshold(img,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
+        im_grey = cv2.medianBlur(im_grey,5)
+        im_thresh = cv2.adaptiveThreshold(im_grey,255,cv2.ADAPTIVE_THRESH_GAUSSIAN_C,cv2.THRESH_BINARY,11,2)
         
     else: # If method == 0 or else
         # Normal. Grey-scale the image

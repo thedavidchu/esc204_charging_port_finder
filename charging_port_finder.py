@@ -16,8 +16,9 @@ def charging_port_finder(image_name='test_port_2.jpg', method=0, show_final=Fals
     Inputs:
     1. image_name = a (valid) image file name
     2. method = whether the picture uses regular (0), Mean (1), or Gaussian (2)
-    3. steps_shown = whether the various contouring steps are shown (False=no show, True=show)
-    4. close_windows = whether old windows should be closed
+    3. show_final = show final image
+    4. steps_shown = whether the various contouring steps are shown (False=no show, True=show)
+    5. close_windows = whether old windows should be closed
 
     Functionality: 
     1. Outputs centre of image
@@ -106,7 +107,7 @@ def camera_capture():
     cv2.destroyAllWindows()
     return 0
 
-#[image, [cX, cY]] = charging_port_finder('test_port_2.jpg',0)
+#[image, [cX, cY]] = charging_port_finder('test_port_2.jpg',0,True, True, True)
 #cv2.imshow('image', image)
 camera_capture()
 
