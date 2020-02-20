@@ -31,8 +31,9 @@ def external_rectangle(image):
     """
     image = [ [ [B G R], [...], ..., [] ], [], ..., [] ]
     """
-    start_point = (0,0)
-    end_point = (len(image[0])-1, len(image)-1)
+    dy = 55
+    start_point = (0,dy)
+    end_point = (len(image[0])-1, len(image)-1-dy)
     colour = (0,0,0)
     thickness = 1
     cv2.rectangle(image, start_point, end_point, colour, thickness)
@@ -203,10 +204,21 @@ def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_win
     # Create border so that there is still a contour if the charging port is only partially in the screen.
     im_border = external_rectangle(im_resize)
 
+    """
+    Delete below...
+    """
+    # Declare the images to display
+    im_all_contours = im_border.copy()
+    #im_max_contour = im_border.copy()
+    #im_max_inner_contour = im_border.copy()
+    # TO HERE ^^^
+
+    """
     # Declare the images to display
     im_all_contours = im_resize.copy()
     im_max_contour = im_resize.copy()
     im_max_inner_contour = im_resize.copy()
+    """
 
     # Convert to grey
     im_grey = cv2.cvtColor(im_border,cv2.COLOR_BGR2GRAY)
@@ -224,17 +236,28 @@ def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_win
         # Normal. Grey-scale the image
         ret,im_thresh = cv2.threshold(im_grey,127,255,0)
     
-    # Draw contours
-    contours, hierarchy = cv2.findContours(im_thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-    cv2.drawContours(im_all_contours, contours, -1, (255,0,0), 1)
+    if show_steps == False:
+        # Draw contours
+        contours, hierarchy = cv2.findContours(im_thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
+        cv2.drawContours(im_all_contours, contours, -1, (255,0,0), 1)
 
-    # Find maximum contour area!
-    max_area_index = max_contour_area(contours)
-    cv2.drawContours(im_max_contour, contours, max_area_index, (0,255,0),2) # This one works... I needed to put [] around the other one's 'contours'!!!
+        """
+        Delete this...
+        """
 
-    # Find maximum inner contour area
-    max_child_index = find_max_inner_area(contours, hierarchy, max_area_index)
-    cv2.drawContours(im_max_inner_contour, contours, max_child_index, (0,0,255),3) # This one works... I needed to put [] around the other one's 'contours'!!!
+        im_max_contour = im_all_contours
+        im_max_inner_contour = im_all_contours
+
+
+        ### TO HERE^^^
+
+        # Find maximum contour area!
+        max_area_index = max_contour_area(contours)
+        cv2.drawContours(im_max_contour, contours, max_area_index, (0,255,0),2) # This one works... I needed to put [] around the other one's 'contours'!!!
+
+        # Find maximum inner contour area
+        max_child_index = find_max_inner_area(contours, hierarchy, max_area_index)
+        cv2.drawContours(im_max_inner_contour, contours, max_child_index, (0,0,255),3) # This one works... I needed to put [] around the other one's 'contours'!!!
 
     if show_steps == True:
         cv2.imshow('Original', image) # Original colour image
