@@ -72,7 +72,7 @@ def charging_port_finder(image_name='test_port_2.jpg', method=0, show_final=Fals
         print('ERROR: type(show_steps) != bool or type(close_windows) != bool')
         return -1
 
-    [image, contour] = contour_outline(image_name, method, show_steps, close_windows)
+    [image, contour] = contour_outline(image_name, method, show_final, show_steps, close_windows)
     [cX, cY] = centre_finder(image, contour)
 
     if show_final == True:
@@ -93,8 +93,10 @@ def camera_capture():
 
         # Our operations on the frame come here
         try:
-            [image, [cX, cY]] = charging_port_finder(frame,0,True)
+            [image, [cX, cY]] = charging_port_finder(frame,method=0, show_final=True, show_steps=False, close_windows=False)
         except:
+            image = frame
+            print("ERROR: Exception taken")
             pass
         
         # Display the resulting frame
