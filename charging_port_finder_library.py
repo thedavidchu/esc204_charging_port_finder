@@ -31,10 +31,10 @@ def external_rectangle(image):
     """
     image = [ [ [B G R], [...], ..., [] ], [], ..., [] ]
     """
-    dy = 55
+    dy = 0 #55 for webcam.
     start_point = (0,dy)
     end_point = (len(image[0])-1, len(image)-1-dy)
-    colour = (0,0,0)
+    colour = (0,0,255)
     thickness = 1
     cv2.rectangle(image, start_point, end_point, colour, thickness)
 
@@ -168,7 +168,7 @@ def centre_target(image, target_contour, centre, show_steps=False, close_windows
 
 #####
 
-def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_windows=False):
+def contour_outline(image='test_port_0.jpg', method=0,show_final=False,show_steps=False,close_windows=False):
     """
     Definition:
     [image, contour] = contour_outline(image_name='test_port_0.jpg', method=0, steps_shown=False, close_windows=False)
@@ -199,27 +199,26 @@ def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_win
     else:
         # Assume it is a BGR list
         pass
-    im_resize = ResizeWithAspectRatio(image, 600)
 
-    # Create border so that there is still a contour if the charging port is only partially in the screen.
+
+    
+    im_resize = ResizeWithAspectRatio(image.copy(), 600)
+
     im_border = external_rectangle(im_resize)
-
     """
-    Delete below...
+    if show_steps == True:
+        # Declare the images to display
+        im_all_contours = im_resize.copy()
+        im_max_contour = im_resize.copy()
+        im_max_inner_contour = im_resize.copy()
+    else:
+        im_all_contours = im_resize
+        im_max_contour = im_resize
+        im_max_inner_contour = im_resize
     """
-    # Declare the images to display
-    im_all_contours = im_border.copy()
-    #im_max_contour = im_border.copy()
-    #im_max_inner_contour = im_border.copy()
-    # TO HERE ^^^
-
-    """
-    # Declare the images to display
-    im_all_contours = im_resize.copy()
-    im_max_contour = im_resize.copy()
-    im_max_inner_contour = im_resize.copy()
-    """
-
+    im_all_contours = im_resize
+    im_max_contour = im_resize
+    im_max_inner_contour = im_resize
     # Convert to grey
     im_grey = cv2.cvtColor(im_border,cv2.COLOR_BGR2GRAY)
     
@@ -235,29 +234,15 @@ def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_win
     else: # If method == 0 or else
         # Normal. Grey-scale the image
         ret,im_thresh = cv2.threshold(im_grey,127,255,0)
-    
-    if show_steps == False:
-        # Draw contours
-        contours, hierarchy = cv2.findContours(im_thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
-        cv2.drawContours(im_all_contours, contours, -1, (255,0,0), 1)
 
-        """
-        Delete this...
-        """
+    # Find all contours
+    contours, hierarchy = cv2.findContours(im_thresh,cv2.RETR_TREE,cv2.CHAIN_APPROX_SIMPLE)
 
-        im_max_contour = im_all_contours
-        im_max_inner_contour = im_all_contours
+    # Find maximum contour area!
+    max_area_index = max_contour_area(contours)
 
-
-        ### TO HERE^^^
-
-        # Find maximum contour area!
-        max_area_index = max_contour_area(contours)
-        cv2.drawContours(im_max_contour, contours, max_area_index, (0,255,0),2) # This one works... I needed to put [] around the other one's 'contours'!!!
-
-        # Find maximum inner contour area
-        max_child_index = find_max_inner_area(contours, hierarchy, max_area_index)
-        cv2.drawContours(im_max_inner_contour, contours, max_child_index, (0,0,255),3) # This one works... I needed to put [] around the other one's 'contours'!!!
+    # Find maximum inner contour area
+    max_child_index = find_max_inner_area(contours, hierarchy, max_area_index)
 
     if show_steps == True:
         cv2.imshow('Original', image) # Original colour image
@@ -268,11 +253,26 @@ def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_win
         cv2.waitKey()
         cv2.imshow('Threshold', im_thresh) # Thresholded image
         cv2.waitKey()
+        # Draw contours
+        cv2.drawContours(im_all_contours, contours, -1, (255,0,0), 1)
         cv2.imshow('All contours', im_all_contours) # All contours
         cv2.waitKey()
+
+        # Draw maximum contour area!
+        cv2.drawContours(im_max_contour, contours, max_area_index, (0,255,0),2) # This one works... I needed to put [] around the other one's 'contours'!!!
         cv2.imshow('Largest contour', im_max_contour) # Largest contour
         cv2.waitKey()
+        
+        # Draw maximum inner contour area
+        cv2.drawContours(im_max_inner_contour, contours, max_child_index, (0,0,255),3) # This one works... I needed to put [] around the other one's 'contours'!!!
         cv2.imshow('Largest inner contour', im_max_inner_contour) # Largest inner contour
+
+    elif show_final == True:
+        cv2.drawContours(im_all_contours, contours, -1, (255,0,0), 1)
+        cv2.drawContours(im_max_contour, contours, max_area_index, (0,255,0),2)
+        cv2.drawContours(im_max_inner_contour, contours, max_child_index, (0,0,255),3)
+        # I won't actually display the final...
+        # cv2.imshow('Final', im_max_inner_contour)
 
     if close_windows == True:
         # Close all windows
@@ -281,3 +281,5 @@ def contour_outline(image='test_port_0.jpg', method=0,show_steps=False,close_win
 
     # Return image of max inner contour. Changed from im_resize
     return [im_max_inner_contour, contours[max_child_index]]
+
+#contour_outline(image='test_port_0.jpg', method=0,show_steps=False,overlay=False,close_windows=False)
