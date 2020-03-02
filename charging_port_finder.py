@@ -95,7 +95,7 @@ def camera_capture():
         try:
             [image, [cX, cY]] = charging_port_finder(frame,method=0, show_final=True, show_steps=False, close_windows=False)
         except:
-            image = frame
+            image = ResizeWithAspectRatio(frame, 600)
             print("ERROR: Exception taken")
             pass
         
