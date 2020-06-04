@@ -22,4 +22,4 @@ The .jpg files are for testing. The main function is found in charging_port_find
 #### *(Above) Second test image. Clean picture of the charging port.*
 
 ![](test_port_2.jpg)
-#### *(Above) Third test image. Wholistic view of the charging port and surroundings.*
+#### *(Above) Third test image. Wholistic view of the charging port and surroundings. The background offers distractions for the computer vision.*
