@@ -1,4 +1,4 @@
-# cv_praxis3_charging_port
+# esc204_charging_port_finder
 ## Purpose
 Identify the charging port of model car using computer vision and the OpenCV2 library. This project was done for U of T Engineering Science's Praxis 3 project.
 
